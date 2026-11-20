@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b0907" />
+  <title>Film with Himank</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+  <link rel="preload" as="image" href="assets/me-photo.jpg" />
+  <link rel="preload" as="image" href="assets/me-cutout.png" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="stage" id="stage" aria-label="Films orbiting around me">
+    <img class="photo" id="photo" src="assets/me-photo.jpg" alt="" draggable="false" aria-hidden="true" />
+    <div class="shade" aria-hidden="true"></div>
+    <canvas class="dust" id="dust" aria-hidden="true"></canvas>
+
+    <div class="ring" id="ring" role="list" aria-label="Films"></div>
+    <img class="me" id="me" src="assets/me-cutout.png" alt="Portrait of the filmmaker standing on a lit street at night" draggable="false" />
+
+    <div class="grain" aria-hidden="true"></div>
+    <div class="vignette" aria-hidden="true"></div>
+  </main>
+
+  <!-- opening title -->
+  <div class="intro" id="intro" role="dialog" aria-label="Film with Himank. Every frame has a story. Here's mine.">
+    <div class="ibar top"></div>
+    <div class="ibar bot"></div>
+    <div class="beam" aria-hidden="true"></div>
+    <div class="imeta tl" aria-hidden="true">SCENE 01 · TAKE 01</div>
+    <div class="imeta tr" aria-hidden="true"><span class="rec"></span>REC</div>
+    <div class="imeta bl" aria-hidden="true" id="tc">00:00:00:00</div>
+    <div class="imeta br" aria-hidden="true">AI FILMS · 2026</div>
+    <h1 class="ititle"><span class="l1" data-split>FILM WITH</span><span class="l2"><span class="l2i" data-split>HIMANK</span><em>.</em></span></h1>
+    <p class="itag"><span class="t1">Every frame has a story.</span> <span class="t2">Here’s mine.</span></p>
+    <button class="iskip" id="iskip">Skip intro<span>↵</span></button>
+  </div>
+
+  <!-- top bar -->
+  <header class="top ui">
+    <div class="who"><span class="name" id="siteName"></span><span class="role" id="siteRole"></span></div>
+    <nav class="nav" aria-label="Main">
+      <button data-panel="films">Films</button>
+      <button data-panel="about">About</button>
+      <button data-panel="contact">Contact</button>
+    </nav>
+  </header>
+
+  <!-- now showing -->
+  <section class="now ui" aria-live="polite">
+    <div class="count"><b id="nowIdx">01</b><span>/ <i id="nowTotal">10</i></span></div>
+    <div class="now-text"><div class="now-title" id="nowTitle"></div><div class="now-meta" id="nowMeta"></div></div>
+  </section>
+  <div class="spin ui">
+    <button class="round" id="prevBtn" aria-label="Rotate to previous film"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <button class="round" id="nextBtn" aria-label="Rotate to next film"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+  </div>
+  <div class="hint ui" id="hint"><span class="dot"></span>Drag to spin · Click a film to watch</div>
+
+  <!-- player -->
+  <div class="player-wrap" id="playerWrap" hidden>
+    <div class="scrim" id="scrim"></div>
+    <section class="player glass" id="player" role="dialog" aria-modal="true" aria-labelledby="pTitle">
+      <div class="p-body">
+        <div class="pv" id="pv">
+          <canvas class="pv-ph" id="pvCanvas" aria-hidden="true"></canvas>
+          <div class="pv-cover" id="pvCover"></div>
+          <div class="pv-soon" id="pvSoon"><span class="pill">Film coming soon</span><b id="pvBig"></b></div>
+          <button class="pv-big-play" id="pvBigPlay" aria-label="Play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
+          <div class="pv-bar">
+            <button class="pv-btn" id="pPlay" aria-label="Play"><svg class="i-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg><svg class="i-pause" viewBox="0 0 24 24"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg></button>
+            <span class="pv-time" id="pTime">0:00</span>
+            <input class="pv-scrub" id="pScrub" type="range" min="0" max="1000" value="0" aria-label="Seek" />
+            <span class="pv-time" id="pDur">0:00</span>
+            <button class="pv-btn" id="pMute" aria-label="Mute"><svg class="i-vol" viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none"/></svg><svg class="i-mute" viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M17 9l5 6M22 9l-5 6" fill="none"/></svg></button>
+            <button class="pv-btn" id="pFull" aria-label="Fullscreen"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none"/></svg></button>
+          </div>
+        </div>
+        <aside class="p-info">
+          <div class="p-chip"><span class="logo"></span>AI FILM <em id="pIdx"></em></div>
+          <h2 id="pTitle"></h2>
+          <div class="p-meta" id="pMeta"></div>
+          <p class="p-desc" id="pDesc"></p>
+          <div class="p-tools" id="pTools"></div>
+          <a class="p-open" id="pOpen" href="#" target="_blank" rel="noopener" hidden>Open in Google Drive ↗</a>
+          <div class="p-nav">
+            <button class="p-navbtn" id="pPrev"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg><span><small>Previous</small><b id="pPrevT"></b></span></button>
+            <button class="p-navbtn r" id="pNext"><span><small>Next</small><b id="pNextT"></b></span><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+          </div>
+        </aside>
+      </div>
+      <button class="p-close" id="pClose" aria-label="Close player"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </section>
+  </div>
+
+  <!-- panels -->
+  <div class="panel-wrap" id="panelWrap" hidden>
+    <div class="scrim" data-close></div>
+    <section class="panel glass" id="panel" role="dialog" aria-modal="true" aria-labelledby="panelTitle">
+      <button class="p-close" data-close aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <h3 id="panelTitle"></h3>
+      <div id="panelBody"></div>
+    </section>
+  </div>
+
+  <script src="films.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
