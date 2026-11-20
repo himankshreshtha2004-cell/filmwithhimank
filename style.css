@@ -25,12 +25,11 @@ svg { width: 100%; height: 100%; stroke: currentColor; stroke-width: 2; stroke-l
 .photo, .me { position: absolute; left: 0; top: 0; max-width: none; pointer-events: none; transform-origin: 0 0; }
 /* the alt text never shows as a broken-image label */
 .photo, .me { color: transparent; font-size: 0; }
-.me.head { z-index: 501; will-change: transform; }
 .photo { z-index: 0; transition: filter .8s var(--ease); }
 .me { z-index: 500; transition: filter .8s var(--ease); }
 .shade { position: absolute; inset: 0; pointer-events: none; z-index: 1;
   background: linear-gradient(180deg, rgba(0, 0, 0, .38), rgba(0, 0, 0, 0) 16%, rgba(0, 0, 0, 0) 78%, rgba(0, 0, 0, .42)); }
-.stage.viewing .photo, .stage.viewing .me, .stage.viewing .head { filter: brightness(.42) saturate(.9); }
+.stage.viewing .photo, .stage.viewing .me { filter: brightness(.42) saturate(.9); }
 .dust { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 900; }
 .grain { position: absolute; inset: -50%; pointer-events: none; z-index: 950; opacity: .035;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");

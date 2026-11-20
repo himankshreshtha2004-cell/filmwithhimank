@@ -11,7 +11,7 @@
   var RM = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
   var FINE = window.matchMedia && matchMedia("(pointer: fine)").matches;
   if (RM) document.documentElement.classList.add("reduce");
-  var stage = $("#stage"), ring = $("#ring"), me = $("#me"), headEl = $("#head");
+  var stage = $("#stage"), ring = $("#ring"), me = $("#me");
   var pad = function (n) { return String(n).padStart(2, "0"); };
   var TAU = Math.PI * 2;
   var wrap = function (a) { a = (a + Math.PI) % TAU; if (a < 0) a += TAU; return a - Math.PI; };
@@ -101,10 +101,8 @@
 
   /* ------------------------------------------------------------------ geometry */
   // where I am inside the original 1200×1600 photo (used to keep me in frame and line the cutout up)
-  var PHOTO = { w: 2172, h: 2896, cut: { x: 783, y: 1142, w: 499, h: 1672 }, headImg: { x: 1027, y: 914, w: 214, h: 298 }, pivot: { x: 1124, y: 1196 }, person: { cx: 1031, top: 917, h: 1894 }, head: { x: 1135, y: 1035, r: 118 } };
+  var PHOTO = { w: 2172, h: 2896, cut: { x: 783, y: 914, w: 499, h: 1900 }, person: { cx: 1031, top: 917, h: 1894 }, head: { x: 1135, y: 1035, r: 118 } };
   var photo = $("#photo"), G = {};
-  // my head follows the cursor: it tilts and leans towards wherever the mouse is
-  var LOOK = { x0: 0, y0: 0, s: 1, px: 0, py: 0, mx: null, my: null, a: 0, tx: 0, ty: 0, dirty: true };
   function layout() {
     var W = innerWidth, H = innerHeight, mob = W < 860;
     var frac = mob ? 0.55 : 0.9;                       // how tall I appear on screen
@@ -116,11 +114,6 @@
     photo.style.transform = "translate(" + ox + "px," + oy + "px)";
     me.style.width = PHOTO.cut.w * s + "px"; me.style.height = PHOTO.cut.h * s + "px";
     me.style.transform = "translate(" + (ox + PHOTO.cut.x * s) + "px," + (oy + PHOTO.cut.y * s) + "px)";
-    headEl.style.width = PHOTO.headImg.w * s + "px"; headEl.style.height = PHOTO.headImg.h * s + "px";
-    headEl.style.transformOrigin = (PHOTO.pivot.x - PHOTO.headImg.x) * s + "px " + (PHOTO.pivot.y - PHOTO.headImg.y) * s + "px";
-    LOOK.x0 = ox + PHOTO.headImg.x * s; LOOK.y0 = oy + PHOTO.headImg.y * s; LOOK.s = s;
-    LOOK.px = ox + PHOTO.pivot.x * s; LOOK.py = oy + PHOTO.head.y * s;
-    LOOK.dirty = true;
     G = {
       W: W, H: H, mob: mob, s: s,
       k: mob ? Math.max(1, Math.min(1.45, Math.min(W / 390, H / 760))) : Math.max(0.85, Math.min(1.4, Math.min(H / 900, W / 1440))), // card size for this screen
@@ -254,26 +247,6 @@
     P = { id: e.pointerId, x0: e.clientX, y0: e.clientY, lx: e.clientX, lt: performance.now(), card: c, moved: false, v: 0 };
     stage.setPointerCapture(e.pointerId);
   });
-  addEventListener("pointermove", function (e) { if (e.pointerType === "mouse" || FINE) { LOOK.mx = e.clientX; LOOK.my = e.clientY; } }, { passive: true });
-  document.addEventListener("pointerleave", function () { LOOK.mx = LOOK.my = null; });
-  (function look(now) {
-    var W = innerWidth, H = innerHeight, ta = 0, ttx = 0, tty = 0;
-    if (LOOK.mx != null && !RM) {
-      var dx = (LOOK.mx - LOOK.px) / (W * 0.5), dy = (LOOK.my - LOOK.py) / (H * 0.5);
-      dx = Math.max(-1.2, Math.min(1.2, dx)); dy = Math.max(-1.2, Math.min(1.2, dy));
-      ta = dx * 7 - dx * dy * 1.5;               // tilt towards the cursor (degrees)
-      ttx = dx * 9; tty = dy * 6;                // lean a little that way
-    } else if (!RM) {                            // no mouse (phones): a slow, gentle sway
-      var t = (now || 0) / 1000; ta = Math.sin(t * 0.5) * 2.2; ttx = Math.sin(t * 0.5) * 3; tty = Math.sin(t * 0.37) * 1.5;
-    }
-    var k = 0.085;
-    var na = LOOK.a + (ta - LOOK.a) * k, nx = LOOK.tx + (ttx - LOOK.tx) * k, ny = LOOK.ty + (tty - LOOK.ty) * k;
-    if (LOOK.dirty || Math.abs(na - LOOK.a) > 0.002 || Math.abs(nx - LOOK.tx) > 0.01 || Math.abs(ny - LOOK.ty) > 0.01) {
-      LOOK.a = na; LOOK.tx = nx; LOOK.ty = ny; LOOK.dirty = false;
-      headEl.style.transform = "translate(" + (LOOK.x0 + nx * LOOK.s * 2).toFixed(2) + "px," + (LOOK.y0 + ny * LOOK.s * 2).toFixed(2) + "px) rotate(" + na.toFixed(3) + "deg)";
-    }
-    requestAnimationFrame(look);
-  })();
   stage.addEventListener("pointermove", function (e) {
     if (FINE && !G.mob) { stage.style.setProperty("--px", (e.clientX / G.W - 0.5).toFixed(3)); stage.style.setProperty("--py", (e.clientY / G.H - 0.5).toFixed(3)); }
     if (!P || e.pointerId !== P.id) return;
